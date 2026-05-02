@@ -1,38 +1,31 @@
-//remember for compiling we can use javac -d . Object/*.java Service/*.java Main.java
+import Gui.MainGUI;
 import Service.ComplaintManager;
-import Service.UserManager;
-import exceptions.UserAlreadyExistException;
-import java.util.Scanner;
-import model.User;
+import Service.UserManager; // Ensure this matches your folder name (gui or Gui)
+import javax.swing.SwingUtilities;
+
 public class Main {
-    public static void main(String[] args)
-    {Scanner sc= new Scanner(System.in);
-
-       User ActivUser;
-        UserManager U1=new UserManager();
-       try { 
-        U1.SignUp("Yash", "work");
-        U1.SignUp("Yash","work");
-       boolean check= U1.login("Yash","work");
-       if(check==true)
-       {
-ActivUser=U1.getCurrentUser();
-ComplaintManager C1=new ComplaintManager();
-    String description;
-description=sc.nextLine();
-C1.complaint_registration(ActivUser, description);
-
-
-       }
-       } 
-       catch(IllegalArgumentException e){
-    System.out.println(e.getMessage());
-       }
-catch(UserAlreadyExistException e)
-{
-    System.out.println(e.getMessage());
-}
+    public static void main(String[] args) {
         
-    }
+        UserManager U1 = new UserManager();
+        ComplaintManager C1 = new ComplaintManager();
 
+        
+        try {
+            System.out.println("Connecting to database...");
+            U1.loadUsersFromDB();
+            C1.loadComplaintsFromDB();
+            U1.registerAdmin("Admin", "admin123");
+            
+            System.out.println("System Ready.");
+        } catch (Exception e) {
+            System.err.println("Startup Warning: " + e.getMessage());
+        }
+
+        // 3. Launch the GUI
+        // We use invokeLater to ensure the window runs smoothly on the Linux desktop
+        SwingUtilities.invokeLater(() -> {
+            MainGUI window = new MainGUI(U1, C1);
+            window.setVisible(true);
+        });
+    }
 }
